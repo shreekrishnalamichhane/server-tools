@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+---
+
+1. Always focus on menu based bash scripts.
+2. This will be a category based repo with multiple tools inside each category.
+3. Tools should be categoried and structured in a way that is easier to find and interact.
+4. If you are not sure about on which category to include the tools on, always ask me instead of assuming.
+5. Make a entry file on the root which lists the cateogry of commands and under each category keep the similar list of menu with tools.
+6. 0 on each menu should bring flow to before menu.
+7. Under each category, keep each tools as a seperate file that are easier to manage and maintain.
