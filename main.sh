@@ -22,7 +22,8 @@ while true; do
     show_header
     echo -e "${GREEN}Available Categories:${NC}"
     echo ""
-    echo "  1. Docker"
+    echo "  1. System Resources"
+    echo "  2. Docker Tools"
     echo ""
     echo -e "${YELLOW}  0. Exit${NC}"
     echo ""
@@ -31,6 +32,9 @@ while true; do
 
     case $choice in
         1)
+            bash "$(dirname "$0")/resources/menu.sh"
+            ;;
+        2)
             bash "$(dirname "$0")/docker/menu.sh"
             ;;
         0)
