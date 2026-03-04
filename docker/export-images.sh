@@ -44,7 +44,7 @@ case $choice in
         read -r image_name
         
         if [ -z "$image_name" ]; then
-            echo -e "${RED}Image name cannot be empty.${NC}"
+            echo -e "${RED}✗ Image name cannot be empty.${NC}"
         else
             # Sanitize filename
             safe_name=$(echo "$image_name" | sed 's/[\/:]/_/g')
@@ -53,11 +53,11 @@ case $choice in
             echo ""
             echo -e "${YELLOW}Exporting ${image_name} to ${output_file}...${NC}"
             
-            if docker save -o "$output_file" "$image_name"; then
+            if docker save -o "$output_file" "$image_name" 2>&1; then
                 echo -e "${GREEN}✓ Image exported successfully to ${output_file}${NC}"
                 echo -e "File size: $(du -h "$output_file" | cut -f1)"
             else
-                echo -e "${RED}✗ Failed to export image.${NC}"
+                echo -e "${RED}✗ Failed to export image. Check if image exists.${NC}"
             fi
         fi
         ;;
@@ -74,7 +74,9 @@ case $choice in
         
         images=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>")
         
-        if docker save -o "$output_file" $images; then
+        if [ -z "$images" ]; then
+            echo -e "${RED}✗ No images found to export.${NC}"
+        elif docker save -o "$output_file" $images 2>&1; then
             echo -e "${GREEN}✓ All images exported successfully to ${output_file}${NC}"
             echo -e "File size: $(du -h "$output_file" | cut -f1)"
         else
@@ -88,7 +90,7 @@ case $choice in
         read -r images
         
         if [ -z "$images" ]; then
-            echo -e "${RED}No images specified.${NC}"
+            echo -e "${RED}✗ No images specified.${NC}"
         else
             echo ""
             echo -e -n "${BLUE}Enter output filename (default: selected-images.tar): ${NC}"
@@ -98,11 +100,11 @@ case $choice in
             echo ""
             echo -e "${YELLOW}Exporting images to ${output_file}...${NC}"
             
-            if docker save -o "$output_file" $images; then
+            if docker save -o "$output_file" $images 2>&1; then
                 echo -e "${GREEN}✓ Images exported successfully to ${output_file}${NC}"
                 echo -e "File size: $(du -h "$output_file" | cut -f1)"
             else
-                echo -e "${RED}✗ Failed to export images.${NC}"
+                echo -e "${RED}✗ Failed to export images. Check if all images exist.${NC}"
             fi
         fi
         ;;

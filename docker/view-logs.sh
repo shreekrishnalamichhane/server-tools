@@ -65,21 +65,27 @@ case $choice in
         echo ""
         echo -e "${GREEN}=== Logs for ${container} ===${NC}"
         echo ""
-        docker logs "$container"
+        if ! docker logs "$container" 2>&1; then
+            echo -e "${RED}✗ Failed to retrieve logs.${NC}"
+        fi
         ;;
     
     2)
         echo ""
         echo -e "${GREEN}=== Last 50 lines for ${container} ===${NC}"
         echo ""
-        docker logs --tail 50 "$container"
+        if ! docker logs --tail 50 "$container" 2>&1; then
+            echo -e "${RED}✗ Failed to retrieve logs.${NC}"
+        fi
         ;;
     
     3)
         echo ""
         echo -e "${GREEN}=== Last 100 lines for ${container} ===${NC}"
         echo ""
-        docker logs --tail 100 "$container"
+        if ! docker logs --tail 100 "$container" 2>&1; then
+            echo -e "${RED}✗ Failed to retrieve logs.${NC}"
+        fi
         ;;
     
     4)
@@ -88,12 +94,14 @@ case $choice in
         read -r lines
         
         if [[ ! "$lines" =~ ^[0-9]+$ ]]; then
-            echo -e "${RED}Invalid number.${NC}"
+            echo -e "${RED}✗ Invalid number.${NC}"
         else
             echo ""
             echo -e "${GREEN}=== Last ${lines} lines for ${container} ===${NC}"
             echo ""
-            docker logs --tail "$lines" "$container"
+            if ! docker logs --tail "$lines" "$container" 2>&1; then
+                echo -e "${RED}✗ Failed to retrieve logs.${NC}"
+            fi
         fi
         ;;
     
@@ -101,14 +109,18 @@ case $choice in
         echo ""
         echo -e "${GREEN}=== Following logs for ${container} (Press Ctrl+C to stop) ===${NC}"
         echo ""
-        docker logs -f "$container"
+        if ! docker logs -f "$container" 2>&1; then
+            echo -e "${RED}✗ Failed to follow logs.${NC}"
+        fi
         ;;
     
     6)
         echo ""
         echo -e "${GREEN}=== Logs with timestamps for ${container} ===${NC}"
         echo ""
-        docker logs --timestamps "$container"
+        if ! docker logs --timestamps "$container" 2>&1; then
+            echo -e "${RED}✗ Failed to retrieve logs.${NC}"
+        fi
         ;;
     
     0)

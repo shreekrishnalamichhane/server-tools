@@ -45,19 +45,26 @@ case $choice in
         read -r container
         
         if [ -z "$container" ]; then
-            echo -e "${RED}Container name/ID cannot be empty.${NC}"
+            echo -e "${RED}✗ Container name/ID cannot be empty.${NC}"
         else
             # Check if container is running
             if docker ps -q -f name="^${container}$" | grep -q .; then
                 echo -e "${YELLOW}Container is running. Stopping first...${NC}"
-                docker stop "$container"
+                if ! docker stop "$container" 2>&1; then
+                    echo -e "${RED}✗ Failed to stop container.${NC}"
+                    echo ""
+                    echo -e "${YELLOW}Press Enter to return to menu...${NC}"
+                    read
+                    continue
+                fi
+                echo -e "${GREEN}✓ Container stopped${NC}"
             fi
             
             echo -e "${YELLOW}Removing container ${container}...${NC}"
-            if docker rm "$container"; then
+            if docker rm "$container" 2>&1; then
                 echo -e "${GREEN}✓ Container removed successfully.${NC}"
             else
-                echo -e "${RED}✗ Failed to remove container.${NC}"
+                echo -e "${RED}✗ Failed to remove container. Check if container exists.${NC}"
             fi
         fi
         ;;
@@ -71,22 +78,22 @@ case $choice in
         read -r image
         
         if [ -z "$image" ]; then
-            echo -e "${RED}Image name/ID cannot be empty.${NC}"
+            echo -e "${RED}✗ Image name/ID cannot be empty.${NC}"
         else
             echo -e "${YELLOW}Removing image ${image}...${NC}"
-            if docker rmi "$image"; then
+            if docker rmi "$image" 2>&1; then
                 echo -e "${GREEN}✓ Image removed successfully.${NC}"
             else
                 echo -e "${RED}✗ Failed to remove image.${NC}"
-                echo -e "${YELLOW}Tip: Use 'docker rmi -f' if the image is in use.${NC}"
+                echo -e "${YELLOW}Image may be in use by a container or has dependent images.${NC}"
                 echo ""
                 echo -e -n "${YELLOW}Force remove? (y/n): ${NC}"
                 read -r force
                 if [[ $force == [yY] ]]; then
-                    if docker rmi -f "$image"; then
+                    if docker rmi -f "$image" 2>&1; then
                         echo -e "${GREEN}✓ Image force removed.${NC}"
                     else
-                        echo -e "${RED}✗ Failed to force remove image.${NC}"
+                        echo -e "${RED}✗ Failed to force remove image. Check if image exists.${NC}"
                     fi
                 fi
             fi
@@ -102,7 +109,7 @@ case $choice in
         read -r volume
         
         if [ -z "$volume" ]; then
-            echo -e "${RED}Volume name cannot be empty.${NC}"
+            echo -e "${RED}✗ Volume name cannot be empty.${NC}"
         else
             echo -e "${RED}WARNING: This will permanently delete the volume data!${NC}"
             echo -e -n "${YELLOW}Are you sure? (y/n): ${NC}"
@@ -110,10 +117,10 @@ case $choice in
             
             if [[ $confirm == [yY] ]]; then
                 echo -e "${YELLOW}Removing volume ${volume}...${NC}"
-                if docker volume rm "$volume"; then
+                if docker volume rm "$volume" 2>&1; then
                     echo -e "${GREEN}✓ Volume removed successfully.${NC}"
                 else
-                    echo -e "${RED}✗ Failed to remove volume.${NC}"
+                    echo -e "${RED}✗ Failed to remove volume. Volume may be in use or doesn't exist.${NC}"
                 fi
             else
                 echo -e "${YELLOW}Operation cancelled.${NC}"
@@ -130,13 +137,13 @@ case $choice in
         read -r network
         
         if [ -z "$network" ]; then
-            echo -e "${RED}Network name/ID cannot be empty.${NC}"
+            echo -e "${RED}✗ Network name/ID cannot be empty.${NC}"
         else
             echo -e "${YELLOW}Removing network ${network}...${NC}"
-            if docker network rm "$network"; then
+            if docker network rm "$network" 2>&1; then
                 echo -e "${GREEN}✓ Network removed successfully.${NC}"
             else
-                echo -e "${RED}✗ Failed to remove network.${NC}"
+                echo -e "${RED}✗ Failed to remove network. Network may be in use or doesn't exist.${NC}"
             fi
         fi
         ;;
@@ -153,8 +160,11 @@ case $choice in
             read -r confirm
             
             if [[ $confirm == [yY] ]]; then
-                docker rm $stopped_containers
-                echo -e "${GREEN}✓ All stopped containers removed.${NC}"
+                if docker rm $stopped_containers 2>&1; then
+                    echo -e "${GREEN}✓ All stopped containers removed.${NC}"
+                else
+                    echo -e "${RED}✗ Failed to remove some containers.${NC}"
+                fi
             else
                 echo -e "${YELLOW}Operation cancelled.${NC}"
             fi
@@ -179,12 +189,17 @@ case $choice in
                 for container in $containers; do
                     if docker ps -q -f name="^${container}$" | grep -q .; then
                         echo -e "${YELLOW}Stopping ${container}...${NC}"
-                        docker stop "$container"
+                        if ! docker stop "$container" 2>&1; then
+                            echo -e "${RED}✗ Failed to stop ${container}${NC}"
+                        fi
                     fi
                 done
                 
-                docker rm $containers
-                echo -e "${GREEN}✓ Containers removed.${NC}"
+                if docker rm $containers 2>&1; then
+                    echo -e "${GREEN}✓ Containers removed.${NC}"
+                else
+                    echo -e "${RED}✗ Failed to remove some containers.${NC}"
+                fi
             else
                 echo -e "${YELLOW}Operation cancelled.${NC}"
             fi
@@ -206,8 +221,11 @@ case $choice in
             read -r confirm
             
             if [[ $confirm == [yY] ]]; then
-                docker rmi $images
-                echo -e "${GREEN}✓ Images removed.${NC}"
+                if docker rmi $images 2>&1; then
+                    echo -e "${GREEN}✓ Images removed.${NC}"
+                else
+                    echo -e "${RED}✗ Failed to remove some images. They may be in use.${NC}"
+                fi
             else
                 echo -e "${YELLOW}Operation cancelled.${NC}"
             fi

@@ -68,26 +68,35 @@ case $choice in
     1)
         echo ""
         echo -e "${YELLOW}Starting services...${NC}"
-        $COMPOSE_CMD up -d
-        echo ""
-        echo -e "${GREEN}✓ Services started.${NC}"
-        echo ""
-        echo -e "${BLUE}Running services:${NC}"
-        $COMPOSE_CMD ps
+        if $COMPOSE_CMD up -d 2>&1; then
+            echo ""
+            echo -e "${GREEN}✓ Services started.${NC}"
+            echo ""
+            echo -e "${BLUE}Running services:${NC}"
+            $COMPOSE_CMD ps
+        else
+            echo -e "${RED}✗ Failed to start services.${NC}"
+        fi
         ;;
     
     2)
         echo ""
         echo -e "${YELLOW}Stopping services...${NC}"
-        $COMPOSE_CMD stop
-        echo -e "${GREEN}✓ Services stopped.${NC}"
+        if $COMPOSE_CMD stop 2>&1; then
+            echo -e "${GREEN}✓ Services stopped.${NC}"
+        else
+            echo -e "${RED}✗ Failed to stop services.${NC}"
+        fi
         ;;
     
     3)
         echo ""
         echo -e "${YELLOW}Restarting services...${NC}"
-        $COMPOSE_CMD restart
-        echo -e "${GREEN}✓ Services restarted.${NC}"
+        if $COMPOSE_CMD restart 2>&1; then
+            echo -e "${GREEN}✓ Services restarted.${NC}"
+        else
+            echo -e "${RED}✗ Failed to restart services.${NC}"
+        fi
         ;;
     
     4)

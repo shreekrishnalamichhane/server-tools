@@ -44,8 +44,11 @@ case $choice in
     1)
         echo ""
         echo -e "${YELLOW}Removing stopped containers...${NC}"
-        docker container prune -f
-        echo -e "${GREEN}✓ Stopped containers removed.${NC}"
+        if docker container prune -f 2>&1; then
+            echo -e "${GREEN}✓ Stopped containers removed.${NC}"
+        else
+            echo -e "${RED}✗ Failed to remove stopped containers.${NC}"
+        fi
         ;;
     
     2)
@@ -57,15 +60,21 @@ case $choice in
         read -r confirm
         
         if [[ $confirm == [yY] ]]; then
-            docker image prune -f
-            echo -e "${GREEN}✓ Unused images removed.${NC}"
+            if docker image prune -f 2>&1; then
+                echo -e "${GREEN}✓ Unused images removed.${NC}"
+            else
+                echo -e "${RED}✗ Failed to remove unused images.${NC}"
+            fi
             echo ""
             echo -e -n "${YELLOW}Also remove unused tagged images? (y/n): ${NC}"
             read -r confirm_all
             
             if [[ $confirm_all == [yY] ]]; then
-                docker image prune -a -f
-                echo -e "${GREEN}✓ All unused images removed.${NC}"
+                if docker image prune -a -f 2>&1; then
+                    echo -e "${GREEN}✓ All unused images removed.${NC}"
+                else
+                    echo -e "${RED}✗ Failed to remove all unused images.${NC}"
+                fi
             fi
         fi
         ;;
@@ -79,16 +88,22 @@ case $choice in
         read -r confirm
         
         if [[ $confirm == [yY] ]]; then
-            docker volume prune -f
-            echo -e "${GREEN}✓ Unused volumes removed.${NC}"
+            if docker volume prune -f 2>&1; then
+                echo -e "${GREEN}✓ Unused volumes removed.${NC}"
+            else
+                echo -e "${RED}✗ Failed to remove unused volumes.${NC}"
+            fi
         fi
         ;;
     
     4)
         echo ""
         echo -e "${YELLOW}Removing unused networks...${NC}"
-        docker network prune -f
-        echo -e "${GREEN}✓ Unused networks removed.${NC}"
+        if docker network prune -f 2>&1; then
+            echo -e "${GREEN}✓ Unused networks removed.${NC}"
+        else
+            echo -e "${RED}✗ Failed to remove unused networks.${NC}"
+        fi
         ;;
     
     5)
@@ -104,8 +119,11 @@ case $choice in
         read -r confirm
         
         if [[ $confirm == [yY] ]]; then
-            docker system prune --volumes -f
-            echo -e "${GREEN}✓ All unused data removed.${NC}"
+            if docker system prune --volumes -f 2>&1; then
+                echo -e "${GREEN}✓ All unused data removed.${NC}"
+            else
+                echo -e "${RED}✗ Failed to remove all unused data.${NC}"
+            fi
         fi
         ;;
     
@@ -126,8 +144,11 @@ case $choice in
         read -r confirm
         
         if [[ $confirm == "yes" ]]; then
-            docker system prune -a --volumes -f
-            echo -e "${GREEN}✓ Full cleanup completed.${NC}"
+            if docker system prune -a --volumes -f 2>&1; then
+                echo -e "${GREEN}✓ Full cleanup completed.${NC}"
+            else
+                echo -e "${RED}✗ Full cleanup failed.${NC}"
+            fi
         else
             echo -e "${YELLOW}Cleanup cancelled.${NC}"
         fi

@@ -48,13 +48,13 @@ case $choice in
         read -r container
         
         if [ -z "$container" ]; then
-            echo -e "${RED}Container name/ID cannot be empty.${NC}"
+            echo -e "${RED}✗ Container name/ID cannot be empty.${NC}"
         else
             echo -e "${YELLOW}Starting container ${container}...${NC}"
-            if docker start "$container"; then
+            if docker start "$container" 2>&1; then
                 echo -e "${GREEN}✓ Container started successfully.${NC}"
             else
-                echo -e "${RED}✗ Failed to start container.${NC}"
+                echo -e "${RED}✗ Failed to start container. Check if container exists.${NC}"
             fi
         fi
         ;;
@@ -65,13 +65,13 @@ case $choice in
         read -r container
         
         if [ -z "$container" ]; then
-            echo -e "${RED}Container name/ID cannot be empty.${NC}"
+            echo -e "${RED}✗ Container name/ID cannot be empty.${NC}"
         else
             echo -e "${YELLOW}Stopping container ${container}...${NC}"
-            if docker stop "$container"; then
+            if docker stop "$container" 2>&1; then
                 echo -e "${GREEN}✓ Container stopped successfully.${NC}"
             else
-                echo -e "${RED}✗ Failed to stop container.${NC}"
+                echo -e "${RED}✗ Failed to stop container. Check if container exists.${NC}"
             fi
         fi
         ;;
@@ -82,13 +82,13 @@ case $choice in
         read -r container
         
         if [ -z "$container" ]; then
-            echo -e "${RED}Container name/ID cannot be empty.${NC}"
+            echo -e "${RED}✗ Container name/ID cannot be empty.${NC}"
         else
             echo -e "${YELLOW}Restarting container ${container}...${NC}"
-            if docker restart "$container"; then
+            if docker restart "$container" 2>&1; then
                 echo -e "${GREEN}✓ Container restarted successfully.${NC}"
             else
-                echo -e "${RED}✗ Failed to restart container.${NC}"
+                echo -e "${RED}✗ Failed to restart container. Check if container exists.${NC}"
             fi
         fi
         ;;
@@ -99,13 +99,13 @@ case $choice in
         read -r container
         
         if [ -z "$container" ]; then
-            echo -e "${RED}Container name/ID cannot be empty.${NC}"
+            echo -e "${RED}✗ Container name/ID cannot be empty.${NC}"
         else
             echo -e "${YELLOW}Pausing container ${container}...${NC}"
-            if docker pause "$container"; then
+            if docker pause "$container" 2>&1; then
                 echo -e "${GREEN}✓ Container paused successfully.${NC}"
             else
-                echo -e "${RED}✗ Failed to pause container.${NC}"
+                echo -e "${RED}✗ Failed to pause container. Check if container is running.${NC}"
             fi
         fi
         ;;
@@ -116,13 +116,13 @@ case $choice in
         read -r container
         
         if [ -z "$container" ]; then
-            echo -e "${RED}Container name/ID cannot be empty.${NC}"
+            echo -e "${RED}✗ Container name/ID cannot be empty.${NC}"
         else
             echo -e "${YELLOW}Unpausing container ${container}...${NC}"
-            if docker unpause "$container"; then
+            if docker unpause "$container" 2>&1; then
                 echo -e "${GREEN}✓ Container unpaused successfully.${NC}"
             else
-                echo -e "${RED}✗ Failed to unpause container.${NC}"
+                echo -e "${RED}✗ Failed to unpause container. Check if container is paused.${NC}"
             fi
         fi
         ;;
@@ -135,8 +135,11 @@ case $choice in
             echo -e "${YELLOW}No stopped containers found.${NC}"
         else
             echo -e "${YELLOW}Starting all stopped containers...${NC}"
-            docker start $stopped_containers
-            echo -e "${GREEN}✓ All stopped containers started.${NC}"
+            if docker start $stopped_containers 2>&1; then
+                echo -e "${GREEN}✓ All stopped containers started.${NC}"
+            else
+                echo -e "${RED}✗ Failed to start some containers.${NC}"
+            fi
         fi
         ;;
     
@@ -153,8 +156,11 @@ case $choice in
                 echo -e "${YELLOW}No running containers found.${NC}"
             else
                 echo -e "${YELLOW}Stopping all running containers...${NC}"
-                docker stop $running_containers
-                echo -e "${GREEN}✓ All containers stopped.${NC}"
+                if docker stop $running_containers 2>&1; then
+                    echo -e "${GREEN}✓ All containers stopped.${NC}"
+                else
+                    echo -e "${RED}✗ Failed to stop some containers.${NC}"
+                fi
             fi
         else
             echo -e "${YELLOW}Operation cancelled.${NC}"
