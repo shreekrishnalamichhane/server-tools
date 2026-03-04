@@ -35,6 +35,7 @@ while true; do
     echo "  8. Remove Containers/Images"
     echo "  9. Docker Compose Operations"
     echo " 10. Docker System Info & Disk Usage"
+    echo " 11. Manage Docker Group (Non-root Access)"
     echo ""
     echo -e "${YELLOW}  0. Back to Main Menu${NC}"
     echo ""
@@ -71,6 +72,9 @@ while true; do
             ;;
         10)
             bash "$SCRIPT_DIR/system-info.sh"
+            ;;
+        11)
+            bash "$SCRIPT_DIR/docker-group.sh"
             ;;
         0)
             break
