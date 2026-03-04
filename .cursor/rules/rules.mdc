@@ -9,3 +9,4 @@ alwaysApply: true
 5. Make a entry file on the root which lists the cateogry of commands and under each category keep the similar list of menu with tools.
 6. 0 on each menu should bring flow to before menu.
 7. Under each category, keep each tools as a seperate file that are easier to manage and maintain.
+8. Never write summary, docs and quick start docs. Preserve tokens and only do what I ask. Never extra.
